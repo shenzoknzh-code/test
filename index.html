@@ -1,71 +1,32 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="id">
 <head>
-<meta charset="UTF-8">
-<title>Dot Matrix Number Printer</title>
-<style>
-    body {
-        font-family: Arial, sans-serif;
-        padding: 20px;
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Cetak Nomor — Dot Matrix Style</title>
+
+  <!-- Google Fonts (Monospace + Closed Zero) -->
+  <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg:#fff;
+      --color-black:#000000;
     }
-    canvas {
-        border: 1px solid #ddd;
-        margin-top: 20px;
+    html,body{
+      height:100%;margin:0;
+      font-family:system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial
     }
-</style>
-</head>
-<body>
-
-<h3>Dot Matrix Number Printer</h3>
-
-<label>Masukkan Nomor:</label><br>
-<input id="inputText" type="text" value="17223-23-01-000485-2" style="width:280px; font-size:16px;"><br><br>
-
-<label>Ukuran Font:</label><br>
-<input id="fontSize" type="number" value="32"><br><br>
-
-<label>Spacing Antar Huruf:</label><br>
-<input id="letterSpace" type="number" value="2"><br><br>
-
-<button onclick="draw()">Render</button>
-<button onclick="window.print()">Print</button>
-
-<canvas id="outCanvas"></canvas>
-
-<script>
-function draw() {
-    const text = document.getElementById("inputText").value;
-    const scale = Number(document.getElementById("fontSize").value);
-    const letterSpace = Number(document.getElementById("letterSpace").value);
-    const canvas = document.getElementById("outCanvas");
-    const ctx = canvas.getContext("2d");
-
-    canvas.width = Math.max(600, text.length * (scale * 0.7));
-    canvas.height = scale * 2;
-
-    ctx.fillStyle = "#FFFFFF";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // ===============================
-    // FONT FIX – zero (0) tanpa titik
-    // ===============================
-    ctx.font = scale + "px 'Courier Prime Code', 'Courier', 'Nimbus Mono', monospace";
-    ctx.fontKerning = "none";
-    ctx.textRendering = "geometricPrecision";
-    // ===============================
-
-    ctx.fillStyle = "#0033cc"; // biru mirip tinta dot-matrix
-    ctx.textBaseline = "middle";
-
-    let x = 10;
-    const y = canvas.height / 2;
-
-    for (let i = 0; i < text.length; i++) {
-        ctx.fillText(text[i], x, y);
-        x += ctx.measureText(text[i]).width + letterSpace;
+    .wrap{
+      min-height:100%;display:flex;gap:24px;
+      padding:28px;box-sizing:border-box;
+      align-items:flex-start
     }
-}
-</script>
-
-</body>
-</html>
+    .controls{
+      width:360px;border:1px solid #ddd;padding:16px;
+      border-radius:8px;background:#fafafa
+    }
+    .preview{flex:1;display:flex;flex-direction:column;gap:12px}
+    label{display:block;margin-top:8px;font-size:13px;color:#444}
+    input[type=text],select,input[type=number]{
+      width:100%;padding:8px;margin-top:6px;border-radius:6px;border:1px solid #ccc
