@@ -1,153 +1,71 @@
-<!doctype html>
-<html lang="id">
+<!DOCTYPE html>
+<html>
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Cetak Nomor — Match Font & Size</title>
-  <!-- Google Fonts: choose monospace-ish fonts to try to match the stamped number -->
-  <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
-  <style>
-    :root{
-      --bg:#fff;
-      --stamp-blue:#1673c8; /* tweak to match photo */
+<meta charset="UTF-8">
+<title>Dot Matrix Number Printer</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
     }
-    html,body{height:100%;margin:0;font-family:system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial}
-    .wrap{min-height:100%;display:flex;gap:24px;padding:28px;box-sizing:border-box;align-items:flex-start}
-    .controls{width:360px;border:1px solid #ddd;padding:16px;border-radius:8px;background:#fafafa}
-    .preview{flex:1;display:flex;flex-direction:column;gap:12px}
-    label{display:block;margin-top:8px;font-size:13px;color:#444}
-    input[type=text],select,input[type=number]{width:100%;padding:8px;margin-top:6px;border-radius:6px;border:1px solid #ccc}
-    button{margin-top:12px;padding:10px 12px;border-radius:6px;border:none;background:#1673c8;color:white;cursor:pointer}
-    canvas{background:var(--bg);border:1px dashed #cfcfcf;max-width:100%;}
-    .hint{font-size:12px;color:#666;margin-top:8px}
-  </style>
+    canvas {
+        border: 1px solid #ddd;
+        margin-top: 20px;
+    }
+</style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="controls">
-      <h3>Settings cetak</h3>
-      <label>Nomor</label>
-      <input id="text" type="text" value="17223-23-01-000485-2">
 
-      <label>Font</label>
-      <select id="font">
-        <option value="\'Courier Prime\', monospace">Courier Prime (default)</option>
-        <option value="'Roboto Mono', monospace">Roboto Mono</option>
-        <option value="'Courier New', monospace">Courier New</option>
-      </select>
+<h3>Dot Matrix Number Printer</h3>
 
-      <label>Ukuran font (px)</label>
-      <input id="size" type="number" value="48" min="8" max="300">
+<label>Masukkan Nomor:</label><br>
+<input id="inputText" type="text" value="17223-23-01-000485-2" style="width:280px; font-size:16px;"><br><br>
 
-      <label>Letter spacing (px)</label>
-      <input id="spacing" type="number" value="2" min="-10" max="30">
+<label>Ukuran Font:</label><br>
+<input id="fontSize" type="number" value="32"><br><br>
 
-      <label>Warna</label>
-      <input id="color" type="text" value="#1673c8">
+<label>Spacing Antar Huruf:</label><br>
+<input id="letterSpace" type="number" value="2"><br><br>
 
-      <label>Bold</label>
-      <select id="weight">
-        <option value="400">Normal</option>
-        <option value="700">Bold</option>
-      </select>
+<button onclick="draw()">Render</button>
+<button onclick="window.print()">Print</button>
 
-      <button id="render">Render ke canvas</button>
-      <button id="download">Download PNG</button>
-      <button id="print">Print</button>
+<canvas id="outCanvas"></canvas>
 
-      <p class="hint">Tips: sesuaikan ukuran, jenis font, dan letter spacing sampai hasil di canvas mirip dengan stempel/nota asli. Ganti warna untuk mencocokkan tinta.</p>
-    </div>
+<script>
+function draw() {
+    const text = document.getElementById("inputText").value;
+    const scale = Number(document.getElementById("fontSize").value);
+    const letterSpace = Number(document.getElementById("letterSpace").value);
+    const canvas = document.getElementById("outCanvas");
+    const ctx = canvas.getContext("2d");
 
-    <div class="preview">
-      <h3>Preview</h3>
-      <canvas id="c" width="1200" height="240"></canvas>
-      <div class="hint">Canvas di atas menampilkan teks yang nantinya bisa diunduh sebagai PNG atau langsung dicetak.</div>
-    </div>
-  </div>
+    canvas.width = Math.max(600, text.length * (scale * 0.7));
+    canvas.height = scale * 2;
 
-  <script>
-    const c = document.getElementById('c');
-    const ctx = c.getContext('2d');
-    const textInput = document.getElementById('text');
-    const fontSelect = document.getElementById('font');
-    const sizeInput = document.getElementById('size');
-    const spacingInput = document.getElementById('spacing');
-    const colorInput = document.getElementById('color');
-    const weightSelect = document.getElementById('weight');
+    ctx.fillStyle = "#FFFFFF";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    function render(){
-      // clear
-      ctx.clearRect(0,0,c.width,c.height);
+    // ===============================
+    // FONT FIX – zero (0) tanpa titik
+    // ===============================
+    ctx.font = scale + "px 'Courier Prime Code', 'Courier', 'Nimbus Mono', monospace";
+    ctx.fontKerning = "none";
+    ctx.textRendering = "geometricPrecision";
+    // ===============================
 
-      // white background like paper
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(0,0,c.width,c.height);
+    ctx.fillStyle = "#0033cc"; // biru mirip tinta dot-matrix
+    ctx.textBaseline = "middle";
 
-      const text = textInput.value || '';
-      const size = Number(sizeInput.value) || 48;
-      const spacing = Number(spacingInput.value) || 0;
-      const color = colorInput.value || '#1673c8';
-      const weight = weightSelect.value || '400';
-      const font = fontSelect.value;
+    let x = 10;
+    const y = canvas.height / 2;
 
-      // build canvas font string
-      ctx.font = `${weight} ${size}px ${font}`;
-      ctx.fillStyle = color;
-      ctx.textBaseline = 'middle';
-
-      // manual letter spacing drawing
-      const startX = 24;
-      const y = c.height / 2;
-
-      let x = startX;
-      for (let i=0;i<text.length;i++){
-        const ch = text[i];
-        ctx.fillText(ch, x, y);
-        const w = ctx.measureText(ch).width;
-        x += w + spacing;
-      }
-
-      // optional: draw subtle texture line (like dot-matrix feel) - comment out if undesired
-      // draw a thin underline to mimic stamped underline
-      // ctx.strokeStyle = 'rgba(0,0,0,0.03)'; ctx.beginPath(); ctx.moveTo(0,c.height-6); ctx.lineTo(c.width,c.height-6); ctx.stroke();
+    for (let i = 0; i < text.length; i++) {
+        ctx.fillText(text[i], x, y);
+        x += ctx.measureText(text[i]).width + letterSpace;
     }
+}
+</script>
 
-    document.getElementById('render').addEventListener('click', ()=>{
-      // ensure canvas size fits text
-      const size = Number(sizeInput.value) || 48;
-      const font = fontSelect.value;
-      // temporary measure width
-      const tmp = document.createElement('canvas').getContext('2d');
-      tmp.font = `${weightSelect.value} ${size}px ${font}`;
-      const spacing = Number(spacingInput.value) || 0;
-      const text = textInput.value || '';
-      let width = 48;
-      for (let i=0;i<text.length;i++) width += tmp.measureText(text[i]).width + spacing;
-      width += 48;
-      c.width = Math.min(Math.max(400, Math.ceil(width)), 4000);
-      c.height = Math.ceil(size * 2.2);
-      render();
-    });
-
-    document.getElementById('download').addEventListener('click', ()=>{
-      const link = document.createElement('a');
-      link.download = (textInput.value || 'number') + '.png';
-      link.href = c.toDataURL('image/png');
-      link.click();
-    });
-
-    document.getElementById('print').addEventListener('click', ()=>{
-      // open new window with the image and print
-      const data = c.toDataURL('image/png');
-      const w = window.open('');
-      w.document.write('<img src="'+data+'" onload="window.print();window.close()" style="max-width:100%;">');
-    });
-
-    // initial render on load
-    window.addEventListener('load', ()=>{
-      // trigger initial render with default values
-      document.getElementById('render').click();
-    });
-  </script>
 </body>
 </html>
